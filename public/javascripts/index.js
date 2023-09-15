@@ -8,6 +8,7 @@ function removeAllChildren(element) {
 
 function refreshHeader(table) {
 	const row = document.createElement('tr');
+	row.classList.add('highscore-table-header');
 	const rankHeader = document.createElement('th');
 	const nameHeader = document.createElement('th');
 	const dateHeader = document.createElement('th');
@@ -32,6 +33,7 @@ function refreshLeaderboardRows(table, data) {
 		const score = item.score;
 
 		const row = document.createElement('tr');
+		row.classList.add('highscore-table-row');
 		const rankCell = document.createElement('td');
 		const nameCell = document.createElement('td');
 		const dateCell = document.createElement('td');
