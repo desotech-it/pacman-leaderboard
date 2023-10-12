@@ -47,12 +47,13 @@ async function refreshLeaderboard(table) {
 	fetch('/api/highscore')
 		.then(response => response.json())
 		.then(data => {
+			// Sort the data by score in descending order
+			data.sort((a, b) => b.score - a.score);
 			removeAllChildren(table);
 			refreshLeaderboardRows(table, data);
 		})
 		.catch(error => alert(`Download error: ${error.message}`));
 }
-
 
 addEventListener('load', () => {
 	const root = document.getElementById('root');
