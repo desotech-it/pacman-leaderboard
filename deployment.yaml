@@ -15,7 +15,7 @@ spec:
         app: leaderboard
     spec:
       containers:
-      - image: r.deso.tech/pacman/leaderboard
+      - image: r.deso.tech/pacman/pacman-leaderboard
         name: leaderboard
         env:
           - name: AWS_REGION
