@@ -4,36 +4,46 @@ const { DynamoDBClient, ScanCommand } = require("@aws-sdk/client-dynamodb");
 
 const ddb = new DynamoDBClient();
 
-const getHighscoreCommand = new ScanCommand({
-	TableName: "highscore",
-});
+async function scanTable(tableName, limit = 50) {
+	const entries = [];
 
-router.get('/highscore', (req, res) => {
-	ddb.send(getHighscoreCommand)
-		.then(response => {
-			const result = [];
-			response.Items.forEach(item => {
-				result.push({
-					name: item.Name.S,
-					date: item.Date.S,
-					score: item.Score.N,
-				});
-			});
-			result.sort((a, b) => {
-				if (a.score < b.score) return 1;
-				if (a.score > b.score) return -1;
-				const dateA = new Date(a.date);
-				const dateB = new Date(b.date);
-				if (dateA - dateB) return -1;
-				if (dateB - dateA) return 1;
-				return 0;
-			});
-			res.json(result);
-		})
-		.catch(err => {
-			console.log(err);
-			res.sendStatus(500);
+	let lastEvaluatedKey = null;
+	do {
+		const command = new ScanCommand({
+			TableName: tableName,
+			ReturnConsumedCapacity: "NONE",
+			ExclusiveStartKey: lastEvaluatedKey,
 		});
+		const results = await ddb.send(command);
+		const items = results.Items;
+		items.forEach(item => {
+			entries.push({
+				name: item.Name.S,
+				date: new Date(item.Date.S),
+				score: parseInt(item.Score.N, 10),
+			});
+		});
+		lastEvaluatedKey = results.LastEvaluatedKey;
+	} while (lastEvaluatedKey)
+
+	entries.sort((a, b) => {
+		if (a.score < b.score) return 1;
+		if (a.score > b.score) return -1;
+		return a.date.getTime() - b.date.getTime();
+	});
+
+	return entries.slice(0, limit);
+}
+
+router.get('/highscore', async (req, res) => {
+	try {
+		const entries = await scanTable('highscore');
+		res.json(entries);
+	}
+	catch (err) {
+		console.error(err);
+		res.sendStatus(500);
+	};
 });
 
 module.exports = router;
