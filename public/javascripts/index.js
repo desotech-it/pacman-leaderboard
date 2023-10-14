@@ -53,11 +53,10 @@ async function refreshLeaderboard(table) {
 		.catch(error => alert(`Download error: ${error.message}`));
 }
 
-
 addEventListener('load', () => {
 	const root = document.getElementById('root');
 	const leaderboardTable = document.createElement('table');
 	leaderboardTable.setAttribute('id', 'highscore-table');
 	root.appendChild(leaderboardTable);
-	setTimeout(() => { refreshLeaderboard(leaderboardTable); }, 500);
+	setInterval(() => { refreshLeaderboard(leaderboardTable); }, 500);
 });
